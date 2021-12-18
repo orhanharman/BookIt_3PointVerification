@@ -1,5 +1,7 @@
 package com.bookit.utilities;
 
+import io.restassured.http.ContentType;
+import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
 
 import static io.restassured.RestAssured.given;
@@ -18,4 +20,42 @@ public class BookItApiUtils {
 
         return finalToken;
     }
+
+    public  static String[] getMyInfo(String email, String password){
+        String[] myInfo = new String[3];
+        for (int i = 0; i < myInfo.length; i++) {
+            if(i==0){
+                String url = ConfigurationReader.get("qa3api.uri")+"/api/teams/my";
+                Response response = given().accept(ContentType.JSON)
+                        .and()
+                        .header("Authorization", generateToken(email,password))
+                        .when()
+                        .get(url);
+                JsonPath jsonPath = response.jsonPath();
+                myInfo[i]= jsonPath.getString("name");
+            }
+            if(i==1){
+                String url = ConfigurationReader.get("qa3api.uri")+"/api/batches/my";
+                Response response = given().accept(ContentType.JSON)
+                        .and()
+                        .header("Authorization", generateToken(email,password))
+                        .when()
+                        .get(url);
+                JsonPath jsonPath = response.jsonPath();
+                myInfo[i]= "#"+jsonPath.getString("number");
+            }
+            if(i==2){
+                String url = ConfigurationReader.get("qa3api.uri")+"/api/campuses/my";
+                Response response = given().accept(ContentType.JSON)
+                        .and()
+                        .header("Authorization", generateToken(email,password))
+                        .when()
+                        .get(url);
+                JsonPath jsonPath = response.jsonPath();
+                myInfo[i]= jsonPath.getString("location");
+            }
+        }
+        return myInfo;
+    }
+
 }
